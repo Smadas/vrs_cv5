@@ -46,6 +46,31 @@ SOFTWARE.
 **
 **===========================================================================
 */
+extern uint16_t value = 0;
+
+void ADC1_IRQHandler(void)
+{
+	if (ADC1->SR & ADC_SR_EOC)
+	{
+		value = ADC_GetConversionValue(ADC1);
+	}
+	if(ADC1->SR & ADC_SR_OVR)
+	{
+		//pretecenie
+	}
+}
+void inicializaciaPreruseni(void)
+{
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+	NVIC_InitTypeDef NVIC_InitStructure;
+	NVIC_InitStructure.NVIC_IRQChannel = ADC1_IRQn; //zoznam prerušení nájdete v súbore stm32l1xx.h
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+	ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
+	ADC_ITConfig(ADC1, ADC_IT_OVR, ENABLE);
+}
 void inicializaciaLED(void)
 {
 	//vytvorenie struktury GPIO
@@ -81,7 +106,7 @@ void inicializaciaADC(void)
 	ADC_StructInit(&ADC_InitStructure);
 	/* ADC1 configuration */
 	ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
-	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
+	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
 	ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
 	ADC_InitStructure.ADC_NbrOfConversion = 1;
@@ -153,6 +178,7 @@ int main(void)
 	inicializaciaADCpin();
 	inicializaciaADC();
 	inicializaciaLED();
+	inicializaciaPreruseni();
 
   while (1)
   {
