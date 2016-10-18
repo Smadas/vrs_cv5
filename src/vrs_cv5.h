@@ -8,6 +8,16 @@
 #ifndef VRS_CV5_H_
 #define VRS_CV5_H_
 
+extern uint16_t valueADC;
 
+//void ADC1_IRQHandler(void);
+void inicializaciaPreruseni(void);
+void inicializaciaLED(void);
+void inicializaciaADCpin(void);
+void inicializaciaADC(void);
+int blikanieLED(int blikac, int blikacRychlost);
+uint16_t citanieHodnotyADC(void);
+int rychlostBlikaniaLED(int blikacRychlost,uint16_t value);
 
 #endif /* VRS_CV5_H_ */
+
