@@ -54,10 +54,6 @@ int main(void)
 	/* Enable GPIO clock */
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
 
-	int value = 0;
-	int blikac = 0;
-	int blikacRychlost = 200000;
-
 	//inicializacia periferii
 	inicializaciaADCpin();
 	inicializaciaADC();
