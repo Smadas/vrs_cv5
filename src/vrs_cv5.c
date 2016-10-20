@@ -9,6 +9,27 @@
 #include "stm32l1xx.h"
 #include "vrs_cv5.h"
 
+void (* gCallback1)(unsigned char) = 0;
+void RegisterCallbackUART2(void *callback)
+{
+	gCallback1 = callback;
+}
+
+void USART2_IRQHandler(void)
+{
+	uint8_t pom = 0;
+	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
+	{
+		USART_ClearITPendingBit(USART2, USART_IT_RXNE);
+		pom = USART_ReceiveData(USART2);
+		if (gCallback1)
+		{
+			gCallback1(pom);
+		}
+	}
+}
+
+
 void PutcUART2(char ch)
 {
 	USART_SendData(USART2, (uint8_t) ch);

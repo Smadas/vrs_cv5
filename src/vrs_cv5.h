@@ -21,6 +21,8 @@ int blikanieLED(int blikac, int blikacRychlost);
 uint16_t citanieHodnotyADC(void);
 int rychlostBlikaniaLED(int blikacRychlost,uint16_t value);
 void PutcUART2(char ch);
+void USART2_IRQHandler(void);
+void RegisterCallbackUART2(void *callback);
 
 #endif /* VRS_CV5_H_ */
 

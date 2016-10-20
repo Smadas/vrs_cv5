@@ -70,11 +70,10 @@ int main(void)
 	inicializaciaPrerusenieUSART();
 	inicializaciaUSART2();
 
+
   while (1)
   {
-	  PutcUART2('G');
-
-
+	  PutcUART2('a');
 	  blikac = blikanieLED(blikac, blikacRychlost);
 	  //value = citanieHodnotyADC();
 	  blikacRychlost = rychlostBlikaniaLED(blikacRychlost,valueADC);
