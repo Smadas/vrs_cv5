@@ -9,32 +9,86 @@
 #include "stm32l1xx.h"
 #include "vrs_cv5.h"
 
-void (* gCallback1)(unsigned char) = 0;
-void RegisterCallbackUART2(void *callback)
-{
-	gCallback1 = callback;
+int vypisDatADC(int i){
+	char buffer [10];
+	int hodnota;
+	for(int a = 0;a<100000;a++);
+		  if(pom == 'm'){
+			 if(i==0){
+				 i++;
+			 }
+			 else{
+				 i=0;
+			 }
+			  pom='l';
+		  }
+		 if(i==0){
+			 sprintf(buffer, "%d", valueADC);
+			 PutcUART2(buffer);
+			 buffer[0] = ' ';
+			 buffer[1] = '\0';
+			 PutcUART2(buffer);
+
+		 }
+		 else{
+			 hodnota=valueADC/40.96*0.033*100;
+			 sprintf(buffer, "%d", hodnota);
+			 if(hodnota<100 && hodnota>= 10){
+				 buffer[4]=buffer[1];
+				 buffer[3]=buffer[0];
+				 buffer[2]='.';
+				 buffer[1]='0';
+				 buffer[0]=' ';
+				 buffer[5]='V';
+				 buffer[6]=' ';
+				 buffer[7]='\0';
+				 PutcUART2(buffer);
+			 }
+			 else if(hodnota<10 && hodnota>= 0){
+				 buffer[4]=buffer[0];
+				 buffer[3]='0';
+				 buffer[2]='.';
+				 buffer[1]='0';
+				 buffer[0]=' ';
+				 buffer[5]='V';
+				 buffer[6]=' ';
+				 buffer[7]='\0';
+				 PutcUART2(buffer);
+			 }
+			 else{
+				 buffer[4]=buffer[2];
+				 buffer[3]=buffer[1];
+				 buffer[2]='.';
+				 buffer[1]=buffer[0];
+				 buffer[0]=' ';
+				 buffer[5]='V';
+				 buffer[6]=' ';
+				 buffer[7]='\0';
+				 PutcUART2(buffer);
+			 }
+		 }
+		 return i;
 }
 
 void USART2_IRQHandler(void)
 {
-	uint8_t pom = 0;
 	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
 	{
 		USART_ClearITPendingBit(USART2, USART_IT_RXNE);
 		pom = USART_ReceiveData(USART2);
-		if (gCallback1)
-		{
-			gCallback1(pom);
-		}
 	}
 }
 
 
-void PutcUART2(char ch)
+void PutcUART2(char *ch)
 {
-	USART_SendData(USART2, (uint8_t) ch);
-	while (USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET);
-	USART_ClearFlag(USART2, USART_FLAG_TC);
+	int i = 0;
+	while(ch[i]!='\0'){
+		USART_SendData(USART2,ch[i]);
+		while (USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET);
+		//USART_ClearFlag(USART2, USART_FLAG_TC);
+		i++;
+	}
 }
 
 
@@ -92,7 +146,7 @@ void inicializaciaUSART2(void)
 	  //usart configuration
 	  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 	  USART_InitTypeDef USART_InitStructure;
-	  USART_InitStructure.USART_BaudRate = 9600;
+	  USART_InitStructure.USART_BaudRate = 19200;
 	  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	  USART_InitStructure.USART_StopBits = USART_StopBits_1;
 	  USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -101,10 +155,6 @@ void inicializaciaUSART2(void)
 	  USART_Init(USART2, &USART_InitStructure);
 	  USART_Cmd(USART2, ENABLE);
 	  USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
-
-
-
-
 }
 void inicializaciaLED(void)
 {

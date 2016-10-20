@@ -49,10 +49,6 @@ SOFTWARE.
 */
 uint16_t valueADC = 0;
 
-
-
-
-
 int main(void)
 {
 	/* Enable GPIO clock */
@@ -70,14 +66,12 @@ int main(void)
 	inicializaciaPrerusenieUSART();
 	inicializaciaUSART2();
 
+	int i=0;
+	pom='l';
 
   while (1)
   {
-	  PutcUART2('a');
-	  blikac = blikanieLED(blikac, blikacRychlost);
-	  //value = citanieHodnotyADC();
-	  blikacRychlost = rychlostBlikaniaLED(blikacRychlost,valueADC);
-
+	  i=vypisDatADC(i);
   }
   return 0;
 }
@@ -119,3 +113,4 @@ void __assert(const char *file, int line, const char *failedexpr)
 {
    __assert_func (file, line, NULL, failedexpr);
 }
+
