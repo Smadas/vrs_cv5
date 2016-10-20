@@ -13,12 +13,14 @@ extern uint16_t valueADC;
 //void ADC1_IRQHandler(void);
 void inicializaciaPrerusenieADC(void);
 void inicializaciaPrerusenieUSART(void);
+void inicializaciaUSART2(void);
 void inicializaciaLED(void);
 void inicializaciaADCpin(void);
 void inicializaciaADC(void);
 int blikanieLED(int blikac, int blikacRychlost);
 uint16_t citanieHodnotyADC(void);
 int rychlostBlikaniaLED(int blikacRychlost,uint16_t value);
+void PutcUART2(char ch);
 
 #endif /* VRS_CV5_H_ */
 
