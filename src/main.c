@@ -66,12 +66,14 @@ int main(void)
 	inicializaciaADCpin();
 	inicializaciaADC();
 	inicializaciaLED();
-	inicializaciaPreruseni();
-
+	inicializaciaPrerusenieADC();
+	inicializaciaPrerusenieUSART();
 
   while (1)
   {
-
+	  USART_SendData(USART2, 'h');
+	  while (USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET);
+	  USART_ClearFlag(USART2, USART_FLAG_TC);
 	  blikac = blikanieLED(blikac, blikacRychlost);
 	  //value = citanieHodnotyADC();
 	  blikacRychlost = rychlostBlikaniaLED(blikacRychlost,valueADC);

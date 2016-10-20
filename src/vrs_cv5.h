@@ -11,7 +11,8 @@
 extern uint16_t valueADC;
 
 //void ADC1_IRQHandler(void);
-void inicializaciaPreruseni(void);
+void inicializaciaPrerusenieADC(void);
+void inicializaciaPrerusenieUSART(void);
 void inicializaciaLED(void);
 void inicializaciaADCpin(void);
 void inicializaciaADC(void);

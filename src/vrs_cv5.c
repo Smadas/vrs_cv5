@@ -21,7 +21,9 @@ void ADC1_IRQHandler(void)
 		//pretecenie
 	}
 }
-void inicializaciaPreruseni(void)
+
+
+void inicializaciaPrerusenieADC(void)
 {
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 	NVIC_InitTypeDef NVIC_InitStructure;
@@ -30,6 +32,46 @@ void inicializaciaPreruseni(void)
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
+
+}
+void inicializaciaPrerusenieUSART(void)
+{
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+	NVIC_InitTypeDef NVIC_InitStructure;
+	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn; //zoznam prerušení nájdete v súbore stm32l1xx.h
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+
+}
+void inicializaciaUSART2(void)
+{
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+
+	/* Configure USART Tx and Rx pins */
+	  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+	  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
+	  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3;
+	  GPIO_Init(GPIOA, &GPIO_InitStructure);
+	  GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_USART2);
+	  GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2);
+	  //usart configuration
+	  USART_InitStructure.USART_BaudRate = 19200;
+	  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+	  USART_InitStructure.USART_StopBits = USART_StopBits_1;
+	  USART_InitStructure.USART_Parity = USART_Parity_No;
+	  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+	  USART_Init(USART2, &USART_InitStructure);
+
+	  USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+	  USART_Cmd(USART2, ENABLE);
+
+
 
 }
 void inicializaciaLED(void)
@@ -73,7 +115,7 @@ void inicializaciaADC(void)
 	ADC_InitStructure.ADC_NbrOfConversion = 1;
 	ADC_Init(ADC1, &ADC_InitStructure);
 	/* ADCx regular channel8 configuration */
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 1, ADC_SampleTime_16Cycles);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 1, ADC_SampleTime_192Cycles);
 	/* Enable the ADC */
 	ADC_Cmd(ADC1, ENABLE);
 	/* Wait until the ADC1 is ready */
