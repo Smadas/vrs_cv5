@@ -2,14 +2,15 @@
  * vrs_cv5.c
  *
  *  Created on: 18. 10. 2016
- *      Author: Adam Ado
+ *      Author: Adam, Ado
  */
 
 #include <stddef.h>
+#include <string.h>
 #include "stm32l1xx.h"
 #include "vrs_cv5.h"
 
-int vypisDatADC(int i){
+int vypisDatADC(int i, char *bufferUSART){
 	char buffer [10];
 	int hodnota;
 	for(int a = 0;a<100000;a++);
@@ -24,10 +25,10 @@ int vypisDatADC(int i){
 		  }
 		 if(i==0){
 			 sprintf(buffer, "%d", valueADC);
-			 PutcUART2(buffer);
+			 PutcUART2(buffer, bufferUSART);
 			 buffer[0] = ' ';
 			 buffer[1] = '\0';
-			 PutcUART2(buffer);
+			 PutcUART2(buffer, bufferUSART);
 
 		 }
 		 else{
@@ -42,7 +43,7 @@ int vypisDatADC(int i){
 				 buffer[5]='V';
 				 buffer[6]=' ';
 				 buffer[7]='\0';
-				 PutcUART2(buffer);
+				 PutcUART2(buffer, bufferUSART);
 			 }
 			 else if(hodnota<10 && hodnota>= 0){
 				 buffer[4]=buffer[0];
@@ -53,7 +54,7 @@ int vypisDatADC(int i){
 				 buffer[5]='V';
 				 buffer[6]=' ';
 				 buffer[7]='\0';
-				 PutcUART2(buffer);
+				 PutcUART2(buffer, bufferUSART);
 			 }
 			 else{
 				 buffer[4]=buffer[2];
@@ -64,7 +65,7 @@ int vypisDatADC(int i){
 				 buffer[5]='V';
 				 buffer[6]=' ';
 				 buffer[7]='\0';
-				 PutcUART2(buffer);
+				 PutcUART2(buffer, bufferUSART);
 			 }
 		 }
 		 return i;
@@ -77,18 +78,37 @@ void USART2_IRQHandler(void)
 		USART_ClearITPendingBit(USART2, USART_IT_RXNE);
 		pom = USART_ReceiveData(USART2);
 	}
+	if(USART_GetFlagStatus(USART2, USART_FLAG_TC) != RESET)
+	{
+		USART_ClearFlag(USART2, USART_FLAG_TC);
+		USART_SendData(USART2, znakNaOdoslanie);
+	}
 }
 
 
-void PutcUART2(char *ch)
+void PutcUART2(char *ch, char *USARTbuffer)
 {
 	int i = 0;
+	int dlzkaSlova = 0;
+	dlzkaSlova = strlen(USARTbuffer);
 	while(ch[i]!='\0'){
-		USART_SendData(USART2,ch[i]);
+		/*USART_SendData(USART2,ch[i]);
 		while (USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET);
-		//USART_ClearFlag(USART2, USART_FLAG_TC);
-		i++;
+		USART_ClearFlag(USART2, USART_FLAG_TC);*/
+		//pridanie ch[i] na koniec USARTbuffer;
+		if (dlzkaSlova <= 100)
+		{
+			USARTbuffer[dlzkaSlova] = ch[i];
+			dlzkaSlova++;
+			i++;
+		}
+		else
+		{
+			//pretecenie pola
+			USARTbuffer[0] = 'p';
+		}
 	}
+	USARTbuffer[dlzkaSlova] = '\0';
 }
 
 

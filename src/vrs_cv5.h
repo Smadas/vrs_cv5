@@ -10,6 +10,7 @@
 
 extern uint16_t valueADC;
 uint16_t pom;
+char znakNaOdoslanie;
 
 //void ADC1_IRQHandler(void);
 void inicializaciaPrerusenieADC(void);
@@ -21,9 +22,9 @@ void inicializaciaADC(void);
 int blikanieLED(int blikac, int blikacRychlost);
 uint16_t citanieHodnotyADC(void);
 int rychlostBlikaniaLED(int blikacRychlost,uint16_t value);
-void PutcUART2(char *ch);
+void PutcUART2(char *ch, char *bufferUSART);
 void USART2_IRQHandler(void);
-int vypisDatADC(int i);
+int vypisDatADC(int i, char *bufferUSART);
 
 #endif /* VRS_CV5_H_ */
 
