@@ -62,14 +62,18 @@ int main(void)
 	inicializaciaPrerusenieUSART();
 	inicializaciaUSART2();
 
-	int i=0; //prepinanie tvaru odoslanej hodnoty
-	char USARTbuffer[100]; //buffer, kde su ulozene znaky na odoslanie
+	int tvarVypisu=0; //prepinanie tvaru odoslanej hodnoty
+
 	USARTbuffer[0] = '\0'; //inicializacia buffera
 	pom='l';
+	bufferPripraveny = 1;
+	//prve zapisanie do usart
+	tvarVypisu = odoslanieRetazca(tvarVypisu);
+
 
   while (1)
   {
-	  i=vypisDatADC(i, bufferUSART);
+	  tvarVypisu = odoslanieRetazca(tvarVypisu);
   }
   return 0;
 }

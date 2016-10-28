@@ -2,7 +2,7 @@
  * vrs_cv5.c
  *
  *  Created on: 18. 10. 2016
- *      Author: Adam, Ado
+ *      Author: Adam, Adrian
  */
 
 #include <stddef.h>
@@ -10,7 +10,20 @@
 #include "stm32l1xx.h"
 #include "vrs_cv5.h"
 
-int vypisDatADC(int i, char *bufferUSART){
+
+
+int odoslanieRetazca(int tvarVypisu)
+{
+	if(bufferPripraveny)
+	{
+		tvarVypisu = vypisDatADC(tvarVypisu);
+		bufferInkr = 0;
+		USART_SendData(USART2, USARTbuffer[0]);
+	}
+	return tvarVypisu;
+}
+
+int vypisDatADC(int i){
 	char buffer [10];
 	int hodnota;
 	for(int a = 0;a<100000;a++);
@@ -25,12 +38,24 @@ int vypisDatADC(int i, char *bufferUSART){
 		  }
 		 if(i==0){
 			 sprintf(buffer, "%d", valueADC);
-			 PutcUART2(buffer, bufferUSART);
-			 buffer[0] = ' ';
-			 buffer[1] = '\0';
-			 PutcUART2(buffer, bufferUSART);
-
-		 }
+			 if(valueADC>=0 && valueADC<10){
+				 buffer[1]=' ';
+				 buffer[2]='\0';
+			 }
+			 if(valueADC>=10 && valueADC<100){
+				 buffer[2]=' ';
+				 buffer[3]='\0';
+			 }
+			 if(valueADC>=100 && valueADC<1000){
+				 buffer[3]=' ';
+				 buffer[4]='\0';
+			 }
+			 else{
+				 buffer[4]=' ';
+				 buffer[5]='\0';
+			 }
+			 PutcUART2(buffer);
+         }
 		 else{
 			 hodnota=valueADC/40.96*0.033*100;
 			 sprintf(buffer, "%d", hodnota);
@@ -43,7 +68,7 @@ int vypisDatADC(int i, char *bufferUSART){
 				 buffer[5]='V';
 				 buffer[6]=' ';
 				 buffer[7]='\0';
-				 PutcUART2(buffer, bufferUSART);
+				 PutcUART2(buffer);
 			 }
 			 else if(hodnota<10 && hodnota>= 0){
 				 buffer[4]=buffer[0];
@@ -54,7 +79,7 @@ int vypisDatADC(int i, char *bufferUSART){
 				 buffer[5]='V';
 				 buffer[6]=' ';
 				 buffer[7]='\0';
-				 PutcUART2(buffer, bufferUSART);
+				 PutcUART2(buffer);
 			 }
 			 else{
 				 buffer[4]=buffer[2];
@@ -65,7 +90,7 @@ int vypisDatADC(int i, char *bufferUSART){
 				 buffer[5]='V';
 				 buffer[6]=' ';
 				 buffer[7]='\0';
-				 PutcUART2(buffer, bufferUSART);
+				 PutcUART2(buffer);
 			 }
 		 }
 		 return i;
@@ -81,34 +106,34 @@ void USART2_IRQHandler(void)
 	if(USART_GetFlagStatus(USART2, USART_FLAG_TC) != RESET)
 	{
 		USART_ClearFlag(USART2, USART_FLAG_TC);
-		USART_SendData(USART2, znakNaOdoslanie);
+		bufferInkr++;
+		if( USARTbuffer[bufferInkr] != '\0')
+		{
+			USART_SendData(USART2, USARTbuffer[bufferInkr]);
+		}
+		else
+		{
+			bufferInkr = 0;
+			bufferPripraveny = 1;
+		}
 	}
 }
 
 
-void PutcUART2(char *ch, char *USARTbuffer)
+void PutcUART2(char *ch)
 {
 	int i = 0;
-	int dlzkaSlova = 0;
-	dlzkaSlova = strlen(USARTbuffer);
 	while(ch[i]!='\0'){
 		/*USART_SendData(USART2,ch[i]);
 		while (USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET);
 		USART_ClearFlag(USART2, USART_FLAG_TC);*/
 		//pridanie ch[i] na koniec USARTbuffer;
-		if (dlzkaSlova <= 100)
-		{
-			USARTbuffer[dlzkaSlova] = ch[i];
-			dlzkaSlova++;
-			i++;
-		}
-		else
-		{
-			//pretecenie pola
-			USARTbuffer[0] = 'p';
-		}
+
+		USARTbuffer[i] = ch[i];
+		i++;
+
 	}
-	USARTbuffer[dlzkaSlova] = '\0';
+	USARTbuffer[i] = '\0';
 }
 
 
@@ -175,6 +200,7 @@ void inicializaciaUSART2(void)
 	  USART_Init(USART2, &USART_InitStructure);
 	  USART_Cmd(USART2, ENABLE);
 	  USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+	  USART_ITConfig(USART2, USART_IT_TC, ENABLE);
 }
 void inicializaciaLED(void)
 {
